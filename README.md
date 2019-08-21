@@ -58,3 +58,10 @@ I couldn't say if and when this package will be on CRAN.
 # install.packages("remotes")
 remotes::install_github("nteetor/blaze")
 ```
+
+## Other work
+
+* [`{shiny.router}`](https://github.com/Appsilon/shiny.router) seems
+  to do something similar, I needed a simpler toolset
+* `{shiny}` has its own tools for retrieving the uri hash and reacting to uri
+  changes, you could get by without blaze
