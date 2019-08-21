@@ -1,0 +1,13 @@
+Package: blaze
+Type: Package
+Title: Observe URIs and Routes with 'shiny'
+Version: 0.0.1
+Author: c(
+    person("Nathan", "Teetor", email = "nathanteetor@gmail.com", role = c("aut", "cre")))
+Maintainer: Nathan Teetor <nathanteetor@gmail.com>
+Description: Simulate paging within a 'shiny' application by observering
+    and reacting to URI changes. 
+License: MIT
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1
