@@ -2,6 +2,16 @@
 
 Observe changes to the URI and react to them.
 
+## Usage
+
+Right now `observeRoute()` and `pushRoute()` the bread and butter of {blaze}.
+Use `observeRoute()` to watch for changes to the uri. 
+
+Because {blaze} has to make use of the uri hash hack, users may not know to
+include the leading `/#/`. This is why using `pushRoute()` is strongly advised.
+With `pushRoute()` one of observer can have the application "browse" to a new
+uri and an `observeRoute()` observer can detect this update.
+
 ## Example
 
 Please forgive the trivial content of the tabs. In my current work, this is how
