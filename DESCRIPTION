@@ -7,7 +7,7 @@ Author: c(
 Maintainer: Nathan Teetor <nathanteetor@gmail.com>
 Description: Simulate paging within a 'shiny' application by observering
     and reacting to URI changes. 
-License: MIT
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
