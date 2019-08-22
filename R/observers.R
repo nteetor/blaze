@@ -27,7 +27,9 @@ observeRoute <- function(path, handler, env = parent.frame(), quoted = FALSE,
   h_expr <- shiny::exprToFunction(handler, env = env, quoted = quoted)
 
   o <- observe({
-    req(domain$clientData$url_hash)
+    req(
+      nzchar(domain$clientData$url_hash)
+    )
 
     url <- sub("^#", "", domain$clientData$url_hash)
 
