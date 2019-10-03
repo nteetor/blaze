@@ -18,6 +18,8 @@ Please forgive the trivial content of the tabs. In my current work, this is how
 I am using `{blaze}`, changing tabs of content based on route path.
 
 ``` R
+library(shiny)
+
 shinyApp(
   ui = list(
     tags$head(
