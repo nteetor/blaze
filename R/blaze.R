@@ -1,10 +1,26 @@
-#' @importFrom shiny getDefaultReactiveDomain
+#' @importFrom shiny getDefaultReactiveDomain exprToFunction observe req
+#' @importFrom fs path path_file path_rel
+#'   file_create
+#'   dir_ls dir_exists dir_create dir_walk
 NULL
 
-#' Route paths and URIs
+#' Observe and push URL paths
 #'
-#' The `blaze` package makes simulating different routes within a shiny
-#' application possible. The approach makes use of the `#`, hash, portition of
-#' the uri to prevent the application from truly reloading.
+#' @description
 #'
+#' The `blaze` package allows a shiny app to simulate the multi-paging
+#' behaviour of a typical web application. Using `blaze` you can walk users
+#' through a shiny app and let them traverse with browsers' forward and back
+#' buttons.
+#'
+#' Using path link elements (a variation of standard hyperlinks) users can
+#' browse to different URL paths. A shiny application can detect these changes
+#' with `observePath()` allowing you to update tab sets or other dynamic
+#' elements within the application. `pushPath()` lets you redirect the user from
+#' the server.
+#'
+#' Because of how shiny handles URL paths be sure to run the
+#' `paths()` function before launching an application.
+#'
+#' @name blaze
 "_PACKAGE"

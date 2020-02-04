@@ -4,62 +4,52 @@ Observe changes to the URI and react to them.
 
 ## Usage
 
-Right now `observeRoute()` and `pushRoute()` the bread and butter of {blaze}.
-Use `observeRoute()` to watch for changes to the uri. 
+The `blaze` package allows a shiny app to simulate the multi-paging behaviour of
+a typical web application. Using `blaze` you can walk users through a shiny app
+and let them traverse with browsers' forward and back buttons.
 
-Because {blaze} has to make use of the uri hash hack, users may not know to
-include the leading `/#/`. This is why using `pushRoute()` is strongly advised.
-With `pushRoute()` one of observer can have the application "browse" to a new
-uri and an `observeRoute()` observer can detect this update.
+Using path link elements (a variation of standard hyperlinks) users can browse
+to different URL paths. A shiny application can detect these changes with
+`observePath()` allowing you to update tab sets or other dynamic elements within
+the application. `pushPath()` lets you redirect the user from the server.
+
+Because of how shiny handles URL paths be sure to run the `paths()` function
+before launching an application.
 
 ## Example
 
-Please forgive the trivial content of the tabs. In my current work, this is how
-I am using `{blaze}`, changing tabs of content based on route path.
-
-``` R
+```R
+# install.packages("remotes")
+remotes::install_github("nteetor/blaze")
 library(shiny)
 
+options(shiny.launch.browser = TRUE)
+
+blaze::paths(
+  "hello/world"
+)
+
 shinyApp(
-  ui = list(
+  ui = fluidPage(
     tags$head(
       tags$script(src = "blaze/js/blaze.js")
     ),
-    fluidPage(
-      tabsetPanel(
-        id = "pages",
-        tabPanel(
-          value = "home",
-          title = "Home",
-          tags$p("Home")
-        ),
-        tabPanel(
-          value = "hello_world",
-          title = "World",
-          tags$p("Hello, world!")
-        ),
-        tabPanel(
-          value = "goodnight_moon",
-          title = "Moon",
-          tags$p("Goodnight, moon!")
-        )
-      )
-    )
+    blaze::pathLink(href = "/hello/world", "Hello, world!"),
+    textOutput("msg")
   ),
   server = function(input, output, session) {
-    observeRoute("/", {
-      updateTabsetPanel(session, "pages", "home")
+    state <- reactiveValues(msg = NULL)
+    
+    blaze::observePath(".*", {
+      state$msg <- blaze::getPath()
     })
     
-    observeRoute("/hello/world", {
-      updateTabsetPanel(session, "pages", "hello_world")
-    })
-    
-    observeRoute("/goodnight/moon", {
-      updateTabsetPanel(session, "pages", "goodnight_moon")
+    output$msg <- renderText({
+      state$msg
     })
   }
 )
+
 ```
 
 ## Installation
