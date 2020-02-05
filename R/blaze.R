@@ -1,7 +1,11 @@
-#' @importFrom shiny getDefaultReactiveDomain exprToFunction observe req
-#' @importFrom fs path path_file path_rel
+#' @importFrom shiny
+#'   getDefaultReactiveDomain exprToFunction observe isolate req
+#' @importFrom fs
+#'   path path_file path_rel path_package
 #'   file_create
-#'   dir_ls dir_exists dir_create dir_walk
+#'   dir_ls dir_exists dir_create dir_delete dir_walk
+#' @importFrom rematch2
+#'   re_match re_match_all
 NULL
 
 #' Observe and push URL paths
@@ -24,3 +28,21 @@ NULL
 #'
 #' @name blaze
 "_PACKAGE"
+
+#' @section Including in a shiny app:
+#'
+#' To use blaze with a shiny application the `blaze()` function must be called
+#' inside the application's UI.
+#'
+#' @rdname blaze
+blaze <- function() {
+  htmltools::htmlDependency(
+    name = "blaze",
+    version = packageVersion("blaze"),
+    src = c(
+      file = path_package("blaze", "www", "js"),
+      href = "blaze/js"
+    ),
+    script = "blaze.js"
+  )
+}

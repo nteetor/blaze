@@ -16,4 +16,8 @@ RoxygenNote: 7.0.2
 Imports: 
     fs,
     htmltools,
+    rematch2,
+    rlang,
     shiny
+Suggests: 
+    testthat

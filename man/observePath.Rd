@@ -2,6 +2,7 @@
 % Please edit documentation in R/url.R
 \name{observePath}
 \alias{observePath}
+\alias{param}
 \title{Observe URL paths}
 \usage{
 observePath(
@@ -9,13 +10,16 @@ observePath(
   handler,
   env = parent.frame(),
   quoted = FALSE,
-  regex = TRUE,
+  ...,
   domain = getDefaultReactiveDomain()
 )
+
+param(x, params = peek_params())
 }
 \arguments{
 \item{path}{A character string specifying a URL path, by default `path` is
-treated as a regular expression, see `regex`.}
+treated as a regular expression, passed `fixed = TRUE` to disable this
+behaviour.}
 
 \item{handler}{An expression or function to call when the URL path matches
 `path`.}
@@ -26,13 +30,12 @@ environment.}
 \item{quoted}{One of `TRUE` or `FALSE` specifying if `handler` is a quoted
 expression. If `TRUE`, the expression must be quoted with `quote()`.}
 
-\item{regex}{One of `TRUE` or `FALSE` specifying if `path` is treated as a
-regular expression, defaults to `TRUE`.}
+\item{...}{Additional arguments passed to `grepl()`.}
 
 \item{domain}{A reactive context, defaults to
 `shiny::getDefaultReactiveDomain()`.}
 }
 \description{
 Observe a URL path and run a handler expression. `handler` is run when the
-browser navigates to a URL path matching or exactly `path`, see `regex`.
+browser navigates to a URL path matching `path`.
 }

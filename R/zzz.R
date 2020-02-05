@@ -1,3 +1,3 @@
 .onLoad <- function(pkg, lib) {
-  shiny::addResourcePath("blaze", system.file("www", package = "blaze"))
+  shiny::addResourcePath("blaze", path_package("blaze", "www"))
 }

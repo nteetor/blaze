@@ -5,6 +5,9 @@
 \alias{blaze}
 \alias{blaze-package}
 \title{Observe and push URL paths}
+\usage{
+blaze()
+}
 \description{
 The `blaze` package allows a shiny app to simulate the multi-paging
 behaviour of a typical web application. Using `blaze` you can walk users
@@ -20,3 +23,10 @@ the server.
 Because of how shiny handles URL paths be sure to run the
 `paths()` function before launching an application.
 }
+\section{Including in a shiny app}{
+
+
+To use blaze with a shiny application the `blaze()` function must be called
+inside the application's UI.
+}
+

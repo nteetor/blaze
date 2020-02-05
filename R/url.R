@@ -1,10 +1,11 @@
 #' Observe URL paths
 #'
 #' Observe a URL path and run a handler expression. `handler` is run when the
-#' browser navigates to a URL path matching or exactly `path`, see `regex`.
+#' browser navigates to a URL path matching `path`.
 #'
 #' @param path A character string specifying a URL path, by default `path` is
-#'   treated as a regular expression, see `regex`.
+#'   treated as a regular expression, passed `fixed = TRUE` to disable this
+#'   behaviour.
 #'
 #' @param handler An expression or function to call when the URL path matches
 #'   `path`.
@@ -15,34 +16,86 @@
 #' @param quoted One of `TRUE` or `FALSE` specifying if `handler` is a quoted
 #'   expression. If `TRUE`, the expression must be quoted with `quote()`.
 #'
-#' @param regex One of `TRUE` or `FALSE` specifying if `path` is treated as a
-#'   regular expression, defaults to `TRUE`.
+#' @param ... Additional arguments passed to `grepl()`.
 #'
 #' @param domain A reactive context, defaults to
 #'   `shiny::getDefaultReactiveDomain()`.
 #'
 #' @export
 observePath <- function(path, handler, env = parent.frame(), quoted = FALSE,
-                        regex = TRUE, domain = getDefaultReactiveDomain()) {
-  h_expr <- exprToFunction(handler, env = env, quoted = quoted)
+                        ..., domain = getDefaultReactiveDomain()) {
+  # h_expr <- exprToFunction(handler, env = env, quoted = quoted)
+  h_quo <- rlang::quo_set_env(rlang::enquo(handler), env)
+
+  path <- as_route(path)
 
   o <- observe({
-    req(
-      nzchar(domain$clientData$url_state)
-    )
+    url <- domain$clientData$url_state
 
-    uri <- domain$clientData$url_state
+    req(!is.null(url))
 
-    print(uri)
-
-    is_match <- grepl(path, uri, fixed = !regex)
+    is_match <- grepl(pattern = path, x = url, ..., perl = TRUE)
 
     req(is_match)
 
-    h_expr()
+    mask <- mask_params(path, url)
+
+    isolate(rlang::eval_tidy(h_quo, mask, env))
   }, domain = domain)
 
   invisible(o)
+}
+
+as_route <- function(x) {
+  params <- re_match_all(x, "/:(?<param>[^/]*)")$param[[1]]
+
+  if (length(params)) {
+    stopifnot(
+      all(grepl("^[a-zA-Z]+$", params)),
+      !anyDuplicated(params)
+    )
+
+    x <- gsub("/:([^/]*)", "/(?<\\1>[^/]+)", x)
+  }
+
+  if (!grepl("^[\\^]", x)) {
+    x <- paste0("^", x)
+  }
+
+  if (!grepl("[$]$", x)) {
+    x <- paste0(x, "$")
+  }
+
+  x
+}
+
+mask_params <- function(path, url) {
+  matches <- re_match(url, path)
+
+  if (NCOL(matches) == 2) {
+    return(NULL)
+  }
+
+  params <- as.list(matches[1, seq_len(NCOL(matches) - 2)])
+
+  # not good
+  list(param = function(x) {
+    sym_x <- rlang::ensym(x)
+    name_x <- rlang::as_name(sym_x)
+    params[[name_x]]
+  })
+}
+
+#' @rdname observePath
+#' @export
+param <- function(x, params = peek_params()) {
+  sym_x <- rlang::ensym(x)
+  name_x <- rlang::as_name(sym_x)
+  params[[name_x]]
+}
+
+peek_params <- function() {
+  emptyenv()
 }
 
 #' Path utilities

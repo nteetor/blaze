@@ -6,17 +6,20 @@ paths_init <- function() {
   }
 
   lapply(names(.globals$paths), paths_remove)
+
+  invisible()
 }
 
 paths_add <-function(p, dir) {
-  cat(sprintf("%s => %s", p, dir))
+  cat(sprintf("%s => %s", p, dir), "\n")
   shiny::addResourcePath(p, dir)
   .globals$paths[[p]] <- dir
 }
 
 paths_remove <- function(p) {
-  cat(sprintf("%s => *", p))
+  cat(sprintf("%s => *", p), "\n")
   shiny::removeResourcePath(p)
+  dir_delete(.globals$paths[[p]])
   .globals$paths[[p]] <- NULL
 }
 
@@ -43,11 +46,15 @@ paths <- function(...) {
   dir_walk(recurse = TRUE, type = "directory", fun = function(d) {
     index <- file_create(path(d, "index.html"))
 
+    if (!grepl("^/", d)) {
+      d <- paste0("/", d)
+    }
+
     cat(file = index, sprintf("
       <!DOCTYPE html>
       <html>
       <head><script>window.location.replace(\"/?redirect=%s\")</script></head>
-      <body>Redirect to /</body>
+      <body>Redirecting</body>
       </html>", d
     ))
   })
@@ -86,14 +93,4 @@ as_paths.list <- function(x, ...) {
 
 as_paths.yml <- function(x, ...) {
   as_paths.list(unclass(x))
-}
-
-as_paths.fs_path <- function(x, ...) {
-  if (!dir_exists(x)) {
-    stop("expecting directory path")
-  }
-
-  dirs <- dir_ls(path = x, recurse = TRUE, type = "directory")
-
-  as.character(path_rel(dirs, x))
 }
