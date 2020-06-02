@@ -72,6 +72,6 @@
   });
 
   window.addEventListener("popstate", function(event) {
-    sendState(event.state || "/");
+    sendState(event.state.replace(/[?#].+$/, '') || "/");
   });
 })(window.jQuery, window.Shiny);
