@@ -33,7 +33,7 @@ expression. If `TRUE`, the expression must be quoted with `quote()`.}
 \item{...}{Additional arguments passed to `grepl()`.}
 
 \item{domain}{A reactive context, defaults to
-`shiny::getDefaultReactiveDomain()`.}
+[shiny::getDefaultReactiveDomain()].}
 }
 \description{
 Observe a URL path and run a handler expression. `handler` is run when the

@@ -19,7 +19,7 @@
 #' @param ... Additional arguments passed to `grepl()`.
 #'
 #' @param domain A reactive context, defaults to
-#'   `shiny::getDefaultReactiveDomain()`.
+#'   [shiny::getDefaultReactiveDomain()].
 #'
 #' @export
 observePath <- function(path, handler, env = parent.frame(), quoted = FALSE,
