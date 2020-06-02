@@ -86,8 +86,6 @@ mask_params <- function(path, url) {
   })
 }
 
-#' @rdname observePath
-#' @export
 param <- function(x, params = peek_params()) {
   sym_x <- rlang::ensym(x)
   name_x <- rlang::as_name(sym_x)

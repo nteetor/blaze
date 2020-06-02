@@ -2,7 +2,6 @@
 % Please edit documentation in R/url.R
 \name{observePath}
 \alias{observePath}
-\alias{param}
 \title{Observe URL paths}
 \usage{
 observePath(
@@ -13,8 +12,6 @@ observePath(
   ...,
   domain = getDefaultReactiveDomain()
 )
-
-param(x, params = peek_params())
 }
 \arguments{
 \item{path}{A character string specifying a URL path, by default `path` is
