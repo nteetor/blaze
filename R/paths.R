@@ -23,6 +23,69 @@ paths_remove <- function(p) {
   .globals$paths[[p]] <- NULL
 }
 
+#' Declare Paths for Use with Shiny
+#'
+#' Declare path endpoints that will be available inside your Shiny app. This
+#' function should be called before the call to [shiny::shinyApp()] in your
+#' `app.R` file or inside your `server.R` script before the server function.
+#' This function makes it possible for users to enter your app URL with a path,
+#' e.g. `<myapp.com>/about`, and be directed to the `"about"` page within your
+#' Shiny app.
+#'
+#' @examples
+#' \dontrun{
+#' library(shiny)
+#' library(blaze)
+#'
+#' options(shiny.launch.browser = TRUE)
+#'
+#' blaze::paths(
+#'   "home",
+#'   "about",
+#'   "explore"
+#' )
+#'
+#' shinyApp(
+#'   ui = fluidPage(
+#'     blaze(),
+#'     tags$nav(
+#'       pathLink("/home", "Home"),
+#'       pathLink("/about", "About"),
+#'       pathLink("/explore", "Explore")
+#'     ),
+#'     uiOutput("page")
+#'   ),
+#'   server = function(input, output, session) {
+#'     state <- reactiveValues(page = NULL)
+#'
+#'     observePath("/home", {
+#'       state$page <- "Home is where the heart is."
+#'     })
+#'
+#'     observePath("/about", {
+#'       state$page <- "About this, about that."
+#'     })
+#'
+#'     observePath("/explore", {
+#'       state$page <- div(
+#'         p("Curabitur blandit tempus porttitor."),
+#'         p("Vivamus sagittis lacus augue rutrum dolor auctor.")
+#'       )
+#'     })
+#'
+#'     output$page <- renderUI(state$page)
+#'   }
+#' )
+#' }
+#'
+#' @param ... Path names as character strings that will be valid entry points
+#'   into your Shiny app.
+#'
+#' @return Invisibly writes temporary HTML files to be hosted by Shiny to
+#'   redirect users to the requested path within your Shiny app. The [paths()]
+#'   function returns the temporary folder used by \pkg{blaze}.
+#'
+#' @export
 paths <- function(...) {
   args <- lapply(list(...), as_paths)
   routes <- unique(unlist(args))
@@ -71,6 +134,7 @@ as_paths <- function(x, ...) {
   UseMethod("as_paths", x)
 }
 
+#' @export
 as_paths.character <- function(x, ...) {
   n <- names(x)
 
@@ -86,6 +150,7 @@ as_paths.character <- function(x, ...) {
   }, character(1))
 }
 
+#' @export
 as_paths.list <- function(x, ...) {
   x <- unlist(x)
 
@@ -96,6 +161,7 @@ as_paths.list <- function(x, ...) {
   as_paths.character(x)
 }
 
+#' @export
 as_paths.yml <- function(x, ...) {
   as_paths.list(unclass(x))
 }

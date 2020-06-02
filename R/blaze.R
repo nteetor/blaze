@@ -35,6 +35,7 @@ NULL
 #' inside the application's UI.
 #'
 #' @rdname blaze
+#' @export
 blaze <- function() {
   htmltools::htmlDependency(
     name = "blaze",
