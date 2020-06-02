@@ -40,7 +40,10 @@
   window.addEventListener("DOMContentLoaded", function() {
     var _path = function(path) {
       path = pathURI(path);
-      history.pushState(path, null, path);
+      if (path) {
+        history.pushState(path, null, path);
+        sendState(path);
+      }
     };
 
     document.addEventListener("click", function(event) {
@@ -56,7 +59,6 @@
         var uri = target.getAttribute("href");
 
         if (uri !== window.location.pathname) {
-          sendState(uri);
           _path(uri);
         }
       }
