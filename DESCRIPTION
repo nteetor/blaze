@@ -19,6 +19,7 @@ Imports:
     htmltools,
     rematch2,
     rlang,
-    shiny
+    shiny,
+    utils
 Suggests: 
     testthat

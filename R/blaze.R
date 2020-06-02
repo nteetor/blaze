@@ -39,7 +39,7 @@ NULL
 blaze <- function() {
   htmltools::htmlDependency(
     name = "blaze",
-    version = packageVersion("blaze"),
+    version = utils::packageVersion("blaze"),
     src = c(
       file = path_package("blaze", "www", "js"),
       href = "blaze/js"
