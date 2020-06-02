@@ -53,7 +53,12 @@ paths <- function(...) {
     cat(file = index, sprintf("
       <!DOCTYPE html>
       <html>
-      <head><script>window.location.replace(\"/?redirect=%s\")</script></head>
+      <head><script>
+      // blaze: redirect /<pathname> to Shiny app using URL search query
+      let {origin, pathname, search, hash} = window.location
+      search = (search ? search + '&' : '?') + `redirect=${pathname}`
+      window.location.replace(origin + search + hash)
+      </script></head>
       <body>Redirecting</body>
       </html>", d
     ))
