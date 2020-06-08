@@ -124,6 +124,8 @@ paths <- function(..., app_path = NULL) {
       d <- paste0("/", d)
     }
 
+    app_redirect <- if (is.null(app_path)) "" else paste0("/", app_path)
+
     cat(file = index, sprintf("
       <!DOCTYPE html>
       <html>
@@ -131,10 +133,10 @@ paths <- function(..., app_path = NULL) {
       // blaze: redirect /<pathname> to Shiny app using URL search query
       let {origin, pathname, search, hash} = window.location
       search = (search ? search + '&' : '?') + `redirect=${pathname}`
-      window.location.replace(origin + search + hash)
+      window.location.replace(origin + '%s' + search + hash)
       </script></head>
       <body>Redirecting</body>
-      </html>", d
+      </html>", app_redirect
     ))
   })
 
