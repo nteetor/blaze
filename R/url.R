@@ -133,5 +133,7 @@ getPath <- function(session = getDefaultReactiveDomain()) {
   if (is.null(.globals$app_path)) {
     return(url)
   }
-  sub(paste0("/", .globals$app_path), "", url, fixed = TRUE)
+  url <- sub(paste0("/", .globals$app_path), "", url, fixed = TRUE)
+  if (!length(url) || !grepl("^/", url)) url <- paste0("/", url)
+  url
 }
