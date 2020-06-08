@@ -100,10 +100,10 @@ paths <- function(..., app_path = NULL) {
   old <- setwd(tmp)
   on.exit(setwd(old))
 
-  if (!is.null(app_path)) {
+  .globals$app_path <- if (!is.null(app_path)) {
     app_path <- gsub("^/|/$", "", app_path)
     dir_create(app_path, recurse = TRUE)
-    .globals$app_path <- app_path
+    app_path
   }
 
   lapply(routes, function(route) {
