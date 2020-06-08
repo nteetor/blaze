@@ -58,8 +58,12 @@ as_route <- function(x) {
     x <- gsub("/:([^/]*)", "/(?<\\1>[^/]+)", x)
   }
 
+  if (!grepl("^/", x)) {
+    x <- paste0("/", x)
+  }
+
   if (!is.null(.globals$app_path)) {
-    x <- paste0("/", .globals$app_path, "/", x)
+    x <- paste0("/", .globals$app_path, x)
   }
 
   if (!grepl("^[\\^]", x)) {
