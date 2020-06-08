@@ -4,11 +4,14 @@
 \alias{paths}
 \title{Declare Paths for Use with Shiny}
 \usage{
-paths(...)
+paths(..., app_path = NULL)
 }
 \arguments{
 \item{...}{Path names as character strings that will be valid entry points
 into your Shiny app.}
+
+\item{app_path}{The name of the sub-directory where your Shiny app is hosted,
+e.g. `host.com/<app_path>/`.}
 }
 \value{
 Invisibly writes temporary HTML files to be hosted by Shiny to

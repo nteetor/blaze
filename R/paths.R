@@ -81,12 +81,15 @@ paths_remove <- function(p) {
 #' @param ... Path names as character strings that will be valid entry points
 #'   into your Shiny app.
 #'
+#' @param app_path The name of the sub-directory where your Shiny app is hosted,
+#'  e.g. `host.com/<app_path>/`.
+#'
 #' @return Invisibly writes temporary HTML files to be hosted by Shiny to
 #'   redirect users to the requested path within your Shiny app. The [paths()]
 #'   function returns the temporary folder used by \pkg{blaze}.
 #'
 #' @export
-paths <- function(...) {
+paths <- function(..., app_path = NULL) {
   args <- lapply(list(...), as_paths)
   routes <- unique(unlist(args))
   tmp <- path(tempdir(check = TRUE), "blaze")
@@ -97,16 +100,24 @@ paths <- function(...) {
   old <- setwd(tmp)
   on.exit(setwd(old))
 
+  if (!is.null(app_path)) {
+    app_path <- gsub("^/|/$", "", app_path)
+    dir_create(app_path, recurse = TRUE)
+    .globals$app_path <- app_path
+  }
+
   lapply(routes, function(route) {
+    if (!is.null(app_path)) route <- path(app_path, route)
     dir_create(route)
   })
 
-  dirs <- dir_ls(tmp, recurse = FALSE, type = "directory")
+  app_dir <- if (is.null(app_path)) tmp else path(tmp, app_path)
+  dirs <- dir_ls(app_dir, recurse = FALSE, type = "directory")
   prefixes <- path_file(dirs)
 
   Map(p = prefixes, dir = dirs, paths_add)
 
-  dir_walk(recurse = TRUE, type = "directory", fun = function(d) {
+  dir_walk(app_dir, recurse = TRUE, type = "directory", fun = function(d) {
     index <- file_create(path(d, "index.html"))
 
     if (!grepl("^/", d)) {

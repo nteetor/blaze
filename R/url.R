@@ -58,6 +58,10 @@ as_route <- function(x) {
     x <- gsub("/:([^/]*)", "/(?<\\1>[^/]+)", x)
   }
 
+  if (!is.null(.globals$app_path)) {
+    x <- paste0("/", .globals$app_path, "/", x)
+  }
+
   if (!grepl("^[\\^]", x)) {
     x <- paste0("^", x)
   }
@@ -107,6 +111,10 @@ peek_params <- function() {
 #'
 #' @export
 pushPath <- function(path, session = getDefaultReactiveDomain()) {
+  if (!is.null(.globals$app_path)) {
+    path <- paste0("/", .globals$app_path, path)
+  }
+
   if (!grepl("^/", path)) {
     path <- paste0("/", path)
   }
@@ -121,5 +129,9 @@ pushPath <- function(path, session = getDefaultReactiveDomain()) {
 #' @rdname pushPath
 #' @export
 getPath <- function(session = getDefaultReactiveDomain()) {
-  session$clientData$url_state
+  url <- session$clientData$url_state
+  if (is.null(.globals$app_path)) {
+    return(url)
+  }
+  sub(paste0("/", .globals$app_path), "", url, fixed = TRUE)
 }

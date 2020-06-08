@@ -39,9 +39,9 @@
 
   window.addEventListener("DOMContentLoaded", function() {
     var _path = function(path) {
-      path = pathURI(path);
-      if (path) {
-        history.pushState(path, null, path);
+      const uri = pathURI(path);
+      if (uri) {
+        history.pushState(uri, null, uri);
         sendState(path);
       }
     };
