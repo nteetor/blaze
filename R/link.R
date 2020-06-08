@@ -12,5 +12,5 @@
 pathLink <- function(href, ...) {
   stopifnot(is.character(href))
 
-  htmltools::a(..., href = href, `data-blaze` = NA)
+  htmltools::a(..., href = path_app(href), `data-blaze` = NA)
 }

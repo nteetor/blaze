@@ -178,3 +178,16 @@ as_paths.list <- function(x, ...) {
 as_paths.yml <- function(x, ...) {
   as_paths.list(unclass(x))
 }
+
+
+path_app <- function(path) {
+  if (!grepl("^/", path)) {
+    path <- paste0("/", path)
+  }
+
+  if (!is.null(.globals$app_path)) {
+    path <- paste0("/", .globals$app_path, path)
+  }
+
+  path
+}

@@ -111,13 +111,7 @@ peek_params <- function() {
 #'
 #' @export
 pushPath <- function(path, session = getDefaultReactiveDomain()) {
-  if (!grepl("^/", path)) {
-    path <- paste0("/", path)
-  }
-
-  if (!is.null(.globals$app_path)) {
-    path <- paste0("/", .globals$app_path, path)
-  }
+  path <- path_app(path)
 
   path <- utils::URLencode(path)
 
