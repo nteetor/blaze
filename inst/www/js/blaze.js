@@ -38,10 +38,16 @@
   })();
 
   window.addEventListener("DOMContentLoaded", function() {
-    var _path = function(path) {
+    var _path = function(path, mode) {
       const uri = pathURI(path);
       if (uri) {
-        history.pushState(uri, null, uri);
+        if ((mode || "push") === "push") {
+          history.pushState({uri, pathname: path}, null, uri);
+        } else if (mode === "replace") {
+          history.replaceState({uri, pathname: path}, null, uri);
+        } else {
+          throw `Unknown blaze::pushPath() mode: ${mode}`;
+        }
         sendState(path);
       }
     };
@@ -68,12 +74,13 @@
 
     Shiny.addCustomMessageHandler("blaze:pushstate", function(msg) {
       if (msg.path) {
-        _path(msg.path);
+        _path(msg.path, msg.mode || "push");
       }
     });
   });
 
   window.addEventListener("popstate", function(event) {
-    sendState(event.state.replace(/[?#].+$/, '') || "/");
+    let {pathname} = event.state || window.location;
+    sendState(pathname || "/");
   });
 })(window.jQuery, window.Shiny);

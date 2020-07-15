@@ -109,18 +109,25 @@ peek_params <- function() {
 #' Push a new URL path or get the current path.
 #'
 #' @param path A character string specifying a new URL path
+#' @param mode Either `"push"` or `"replace"`. If `"push"`, the default, the
+#'   path is pushed onto the history stack and pressing the back button in the
+#'   browser will redirect to the current path (before pushing the path). If
+#'   `"replace"`, then the pushed path will replace the current path without
+#'   changing the next page in the browser's back button stack.
 #'
 #' @param session A reactive context, defaults to
 #'   `shiny::getDefaultReactiveDomain()`.
 #'
 #' @export
-pushPath <- function(path, session = getDefaultReactiveDomain()) {
+pushPath <- function(path, mode = c("push", "replace"), session = getDefaultReactiveDomain()) {
   path <- path_app(path)
+  mode <- match.arg(mode)
 
   path <- utils::URLencode(path)
 
   session$sendCustomMessage("blaze:pushstate", list(
-    path = path
+    path = path,
+    mode = mode
   ))
 }
 
