@@ -19,7 +19,7 @@
 #' @param ... Additional arguments passed to `grepl()`.
 #'
 #' @param domain A reactive context, defaults to
-#'   `shiny::getDefaultReactiveDomain()`.
+#'   [shiny::getDefaultReactiveDomain()].
 #'
 #' @export
 observePath <- function(path, handler, env = parent.frame(), quoted = FALSE,
@@ -58,6 +58,14 @@ as_route <- function(x) {
     x <- gsub("/:([^/]*)", "/(?<\\1>[^/]+)", x)
   }
 
+  if (!grepl("^/", x)) {
+    x <- paste0("/", x)
+  }
+
+  if (!is.null(.globals$app_path)) {
+    x <- paste0("/", .globals$app_path, x)
+  }
+
   if (!grepl("^[\\^]", x)) {
     x <- paste0("^", x)
   }
@@ -86,8 +94,6 @@ mask_params <- function(path, url) {
   })
 }
 
-#' @rdname observePath
-#' @export
 param <- function(x, params = peek_params()) {
   sym_x <- rlang::ensym(x)
   name_x <- rlang::as_name(sym_x)
@@ -103,25 +109,36 @@ peek_params <- function() {
 #' Push a new URL path or get the current path.
 #'
 #' @param path A character string specifying a new URL path
+#' @param mode Either `"push"` or `"replace"`. If `"push"`, the default, the
+#'   path is pushed onto the history stack and pressing the back button in the
+#'   browser will redirect to the current path (before pushing the path). If
+#'   `"replace"`, then the pushed path will replace the current path without
+#'   changing the next page in the browser's back button stack.
 #'
 #' @param session A reactive context, defaults to
 #'   `shiny::getDefaultReactiveDomain()`.
 #'
 #' @export
-pushPath <- function(path, session = getDefaultReactiveDomain()) {
-  if (!grepl("^/", path)) {
-    path <- paste0("/", path)
-  }
+pushPath <- function(path, mode = c("push", "replace"), session = getDefaultReactiveDomain()) {
+  path <- path_app(path)
+  mode <- match.arg(mode)
 
   path <- utils::URLencode(path)
 
   session$sendCustomMessage("blaze:pushstate", list(
-    path = path
+    path = path,
+    mode = mode
   ))
 }
 
 #' @rdname pushPath
 #' @export
 getPath <- function(session = getDefaultReactiveDomain()) {
-  session$clientData$url_state
+  url <- session$clientData$url_state
+  if (is.null(.globals$app_path)) {
+    return(url)
+  }
+  url <- sub(paste0("/", .globals$app_path), "", url, fixed = TRUE)
+  if (!length(url) || !grepl("^/", url)) url <- paste0("/", url)
+  url
 }

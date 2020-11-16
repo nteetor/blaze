@@ -9,7 +9,7 @@ pathLink(href, ...)
 \arguments{
 \item{href}{A character string specifying the URL path to navigate to.}
 
-\item{...}{Arguments passed to `htmltools::a()`.}
+\item{...}{Arguments passed to [htmltools::a()].}
 }
 \description{
 The `pathLink()` function creates a special `tags$a()` element. These links

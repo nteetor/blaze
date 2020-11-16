@@ -5,12 +5,22 @@
 \alias{getPath}
 \title{Path utilities}
 \usage{
-pushPath(path, session = getDefaultReactiveDomain())
+pushPath(
+  path,
+  mode = c("push", "replace"),
+  session = getDefaultReactiveDomain()
+)
 
 getPath(session = getDefaultReactiveDomain())
 }
 \arguments{
 \item{path}{A character string specifying a new URL path}
+
+\item{mode}{Either `"push"` or `"replace"`. If `"push"`, the default, the
+path is pushed onto the history stack and pressing the back button in the
+browser will redirect to the current path (before pushing the path). If
+`"replace"`, then the pushed path will replace the current path without
+changing the next page in the browser's back button stack.}
 
 \item{session}{A reactive context, defaults to
 `shiny::getDefaultReactiveDomain()`.}

@@ -23,7 +23,73 @@ paths_remove <- function(p) {
   .globals$paths[[p]] <- NULL
 }
 
-paths <- function(...) {
+#' Declare Paths for Use with Shiny
+#'
+#' Declare path endpoints that will be available inside your Shiny app. This
+#' function should be called before the call to [shiny::shinyApp()] in your
+#' `app.R` file or inside your `server.R` script before the server function.
+#' This function makes it possible for users to enter your app URL with a path,
+#' e.g. `<myapp.com>/about`, and be directed to the `"about"` page within your
+#' Shiny app.
+#'
+#' @examples
+#' \dontrun{
+#' library(shiny)
+#' library(blaze)
+#'
+#' options(shiny.launch.browser = TRUE)
+#'
+#' blaze::paths(
+#'   "home",
+#'   "about",
+#'   "explore"
+#' )
+#'
+#' shinyApp(
+#'   ui = fluidPage(
+#'     blaze(),
+#'     tags$nav(
+#'       pathLink("/home", "Home"),
+#'       pathLink("/about", "About"),
+#'       pathLink("/explore", "Explore")
+#'     ),
+#'     uiOutput("page")
+#'   ),
+#'   server = function(input, output, session) {
+#'     state <- reactiveValues(page = NULL)
+#'
+#'     observePath("/home", {
+#'       state$page <- "Home is where the heart is."
+#'     })
+#'
+#'     observePath("/about", {
+#'       state$page <- "About this, about that."
+#'     })
+#'
+#'     observePath("/explore", {
+#'       state$page <- div(
+#'         p("Curabitur blandit tempus porttitor."),
+#'         p("Vivamus sagittis lacus augue rutrum dolor auctor.")
+#'       )
+#'     })
+#'
+#'     output$page <- renderUI(state$page)
+#'   }
+#' )
+#' }
+#'
+#' @param ... Path names as character strings that will be valid entry points
+#'   into your Shiny app.
+#'
+#' @param app_path The name of the sub-directory where your Shiny app is hosted,
+#'  e.g. `host.com/<app_path>/`.
+#'
+#' @return Invisibly writes temporary HTML files to be hosted by Shiny to
+#'   redirect users to the requested path within your Shiny app. The [paths()]
+#'   function returns the temporary folder used by \pkg{blaze}.
+#'
+#' @export
+paths <- function(..., app_path = NULL) {
   args <- lapply(list(...), as_paths)
   routes <- unique(unlist(args))
   tmp <- path(tempdir(check = TRUE), "blaze")
@@ -34,28 +100,43 @@ paths <- function(...) {
   old <- setwd(tmp)
   on.exit(setwd(old))
 
+  .globals$app_path <- if (!is.null(app_path)) {
+    app_path <- gsub("^/|/$", "", app_path)
+    dir_create(app_path, recurse = TRUE)
+    app_path
+  }
+
   lapply(routes, function(route) {
+    if (!is.null(app_path)) route <- path(app_path, route)
     dir_create(route)
   })
 
-  dirs <- dir_ls(tmp, recurse = FALSE, type = "directory")
+  app_dir <- if (is.null(app_path)) tmp else path(tmp, app_path)
+  dirs <- dir_ls(app_dir, recurse = FALSE, type = "directory")
   prefixes <- path_file(dirs)
 
   Map(p = prefixes, dir = dirs, paths_add)
 
-  dir_walk(recurse = TRUE, type = "directory", fun = function(d) {
+  dir_walk(app_dir, recurse = TRUE, type = "directory", fun = function(d) {
     index <- file_create(path(d, "index.html"))
 
     if (!grepl("^/", d)) {
       d <- paste0("/", d)
     }
 
+    app_redirect <- if (is.null(app_path)) "" else paste0("/", app_path)
+
     cat(file = index, sprintf("
       <!DOCTYPE html>
       <html>
-      <head><script>window.location.replace(\"/?redirect=%s\")</script></head>
+      <head><script>
+      // blaze: redirect /<pathname> to Shiny app using URL search query
+      let {origin, pathname, search, hash} = window.location
+      search = (search ? search + '&' : '?') + `redirect=${pathname}`
+      window.location.replace(origin + '%s' + search + hash)
+      </script></head>
       <body>Redirecting</body>
-      </html>", d
+      </html>", app_redirect
     ))
   })
 
@@ -66,6 +147,7 @@ as_paths <- function(x, ...) {
   UseMethod("as_paths", x)
 }
 
+#' @export
 as_paths.character <- function(x, ...) {
   n <- names(x)
 
@@ -81,6 +163,7 @@ as_paths.character <- function(x, ...) {
   }, character(1))
 }
 
+#' @export
 as_paths.list <- function(x, ...) {
   x <- unlist(x)
 
@@ -91,6 +174,20 @@ as_paths.list <- function(x, ...) {
   as_paths.character(x)
 }
 
+#' @export
 as_paths.yml <- function(x, ...) {
   as_paths.list(unclass(x))
+}
+
+
+path_app <- function(path) {
+  if (!grepl("^/", path)) {
+    path <- paste0("/", path)
+  }
+
+  if (!is.null(.globals$app_path)) {
+    path <- paste0("/", .globals$app_path, path)
+  }
+
+  path
 }

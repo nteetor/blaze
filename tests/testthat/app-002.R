@@ -30,7 +30,7 @@ shinyApp(
 
     observePath("/explore/:animal", {
       state$explore <- div(
-        h5("Explore", param("animal"))
+        h5("Explore", blaze:::param("animal"))
       )
     })
 

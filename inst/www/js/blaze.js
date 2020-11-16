@@ -3,12 +3,31 @@
     Shiny.setInputValue(".clientdata_url_state", value, { priority: "event" });
   };
 
+  var getURLComponents = function() {
+    const params = new URLSearchParams(window.location.search);
+    params.delete('redirect');
+    return {
+      params,
+      pathname: window.location.pathname,
+      hash: window.location.hash
+    };
+  };
+
+  var pathURI = function(redirect, {params, hash} = getURLComponents()) {
+    if (!redirect || redirect == window.location.pathname) {
+      return false;
+    }
+    if (params.toString()) redirect = redirect + '?' + params;
+    return redirect + hash;
+  };
+
   (function() {
     const params = new URLSearchParams(window.location.search);
     const redirect = params.get("redirect") || "/";
 
     if (redirect !== "/") {
-      history.replaceState(redirect, null, redirect);
+      redirectURI = pathURI(redirect);
+      history.replaceState(redirectURI, null, redirectURI);
     }
 
     window.addEventListener("DOMContentLoaded", function() {
@@ -19,6 +38,20 @@
   })();
 
   window.addEventListener("DOMContentLoaded", function() {
+    var _path = function(path, mode) {
+      const uri = pathURI(path);
+      if (uri) {
+        if ((mode || "push") === "push") {
+          history.pushState({uri, pathname: path}, null, uri);
+        } else if (mode === "replace") {
+          history.replaceState({uri, pathname: path}, null, uri);
+        } else {
+          throw `Unknown blaze::pushPath() mode: ${mode}`;
+        }
+        sendState(path);
+      }
+    };
+
     document.addEventListener("click", function(event) {
       const target = event.target;
 
@@ -32,8 +65,7 @@
         var uri = target.getAttribute("href");
 
         if (uri !== window.location.pathname) {
-          sendState(uri);
-          history.pushState(uri, null, uri);
+          _path(uri);
         }
       }
 
@@ -41,17 +73,14 @@
     });
 
     Shiny.addCustomMessageHandler("blaze:pushstate", function(msg) {
-      var _path = function(path) {
-        history.pushState(path, null, path);
-      };
-
       if (msg.path) {
-        _path(msg.path);
+        _path(msg.path, msg.mode || "push");
       }
     });
   });
 
   window.addEventListener("popstate", function(event) {
-    sendState(event.state || "/");
+    let {pathname} = event.state || window.location;
+    sendState(pathname || "/");
   });
 })(window.jQuery, window.Shiny);

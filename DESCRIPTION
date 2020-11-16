@@ -1,9 +1,10 @@
 Package: blaze
 Type: Package
 Title: Observe URL Paths with 'shiny'
-Version: 0.0.1
+Version: 0.0.1.9000
 Author: c(
-    person("Nathan", "Teetor", email = "nathanteetor@gmail.com", role = c("aut", "cre")))
+    person("Nathan", "Teetor", email = "nathanteetor@gmail.com", role = c("aut", "cre")),
+    person("Garrick", "Aden-Buie", email = "garrick@adenbuie.com", role = c("ctb"),  comment = c(ORCID = "0000-0002-7111-0077")))
 Maintainer: Nathan Teetor <nathanteetor@gmail.com>
 Description: Simulate routing within a 'shiny' application by observering
     and reacting to URL changes. 'shiny' applications are considered single page
@@ -12,12 +13,13 @@ Description: Simulate routing within a 'shiny' application by observering
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.1
 Imports: 
     fs,
     htmltools,
     rematch2,
     rlang,
-    shiny
+    shiny,
+    utils
 Suggests: 
     testthat
