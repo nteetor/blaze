@@ -1,6 +1,53 @@
 (function($, Shiny) {
-  var sendState = function(value) {
-    Shiny.setInputValue(".clientdata_url_state", value, { priority: "event" });
+  let URLSearchObject = function(search) {
+    let params = new URLSearchParams(search);
+    return Array.from(params).map(p => ({ [p[0]]: p[1] }));
+  };
+
+  // Original author garrick, see #1
+  var getURLComponents = function() {
+    const params = new URLSearchParams(window.location.search);
+    params.delete("redirect");
+    return {
+      params: params,
+      pathname: window.location.pathname,
+      hash: window.location.hash
+    };
+  };
+
+  // Original author garrick, see #1
+  var pathURI = function(redirect) {
+    if (!redirect || redirect == window.location.pathname) {
+      return false;
+    }
+
+    let {params, hash} = getURLComponents();
+
+    if (params.toString()) {
+      redirect += `?${ params }`;
+    }
+
+    return `${ redirect }${ hash }`;
+  };
+
+  var pushState = function(path) {
+    path = pathURI(path);
+    history.pushState(path, null, path);
+  };
+
+  var replaceState = function(path) {
+    path = pathURI(path);
+    history.replaceState(path, null, path);
+  };
+
+  var sendState = function(path) {
+    Shiny.setInputValue(".clientdata_url_state", path, { priority: "event" });
+  };
+
+  let sendParams = function(search) {
+    const o = URLSearchObject(search);
+    console.log(o);
+    Shiny.setInputValue(".clientdata_url_search_object", o, { priority: "event" });
   };
 
   (function() {
@@ -8,12 +55,13 @@
     const redirect = params.get("redirect") || "/";
 
     if (redirect !== "/") {
-      history.replaceState(redirect, null, redirect);
+      replaceState(redirect);
     }
 
     window.addEventListener("DOMContentLoaded", function() {
       $(document).one("shiny:sessioninitialized", function() {
         sendState(redirect);
+        sendParams(window.location.search);
       });
     });
   })();
@@ -29,11 +77,13 @@
       if (target !== event.currentTarget) {
         event.preventDefault();
 
-        var uri = target.getAttribute("href");
+        let href = target.getAttribute("href");
+        let uri = new URL(href, window.location.origin);
 
-        if (uri !== window.location.pathname) {
-          sendState(uri);
-          history.pushState(uri, null, uri);
+        if (uri.pathname !== window.location.pathname) {
+          sendState(uri.pathname);
+          sendParams(uri.search);
+          history.pushState(href, null, href);
         }
       }
 
@@ -41,17 +91,14 @@
     });
 
     Shiny.addCustomMessageHandler("blaze:pushstate", function(msg) {
-      var _path = function(path) {
-        history.pushState(path, null, path);
-      };
-
       if (msg.path) {
-        _path(msg.path);
+        pushState(msg.path);
       }
     });
   });
 
   window.addEventListener("popstate", function(event) {
     sendState(event.state || "/");
+    sendParams(window.location.search);
   });
 })(window.jQuery, window.Shiny);

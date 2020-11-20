@@ -50,13 +50,24 @@ paths <- function(...) {
       d <- paste0("/", d)
     }
 
-    cat(file = index, sprintf("
+    # Preserving query string and hash fragment was first brought up by
+    # garrick in #1
+    cat(file = index, "
       <!DOCTYPE html>
       <html>
-      <head><script>window.location.replace(\"/?redirect=%s\")</script></head>
+      <head>
+      <script>
+      (function() {
+        let {origin, pathname, search, hash} = window.location;
+        let redirect = `redirect=${ pathname }`;
+        let uri = `${ origin }${ search }${ search ? '&' : '?' }${ redirect }${ hash }`;
+        window.location.replace(uri);
+      })();
+      </script>
+      </head>
       <body>Redirecting</body>
-      </html>", d
-    ))
+      </html>"
+    )
   })
 
   invisible(tmp)

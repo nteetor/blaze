@@ -3,6 +3,7 @@
 \name{observePath}
 \alias{observePath}
 \alias{param}
+\alias{query}
 \title{Observe URL paths}
 \usage{
 observePath(
@@ -14,7 +15,9 @@ observePath(
   domain = getDefaultReactiveDomain()
 )
 
-param(x, params = peek_params())
+param(x)
+
+query(x)
 }
 \arguments{
 \item{path}{A character string specifying a URL path, by default `path` is
@@ -34,8 +37,29 @@ expression. If `TRUE`, the expression must be quoted with `quote()`.}
 
 \item{domain}{A reactive context, defaults to
 `shiny::getDefaultReactiveDomain()`.}
+
+\item{x}{A bare name specifying a URL}
 }
 \description{
 Observe a URL path and run a handler expression. `handler` is run when the
 browser navigates to a URL path matching `path`.
 }
+\section{`param()` and `query()`}{
+
+
+You may want a handler expression to use information from or pieces of a URL.
+Currently, two helper functions exist to extract information from the URL.
+
+With `param()` we can capture pieces of the URL path if `path` is a regular
+expression. To capture a portion of the URL we need to use regular expression
+named capture groups. Here is an example, `"/about/(?<subject>[a-z]+)"`. In
+this example we have a param named subject. To get this value we can call
+`param(subject)` in the handler expression.
+
+With `query()` we can check for values in the URL's query string. In the URL
+`https://demo.org/?p=10&view=all` the query string contains `p` and `view`
+with values `10` and `"all"`, respectively. To check for these values we can
+call `query(p)` and `query(view)` inside our handler expression. If the values
+are not present in the query string `NULL` is returned.
+}
+
